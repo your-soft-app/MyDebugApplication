@@ -7,23 +7,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import jp.co.yuji.mydebugapplication.R
+import jp.co.yuji.mydebugapplication.databinding.FragmentCommonProgressBinding
 import jp.co.yuji.mydebugapplication.presentation.presenter.other.WiFiInfoListPresenter
 import jp.co.yuji.mydebugapplication.presentation.view.adapter.WiFiInfoListRecyclerViewAdapter
 import jp.co.yuji.mydebugapplication.presentation.view.fragment.BaseFragment
-import kotlinx.android.synthetic.main.fragment_common_progress.view.*
-import java.util.*
 
 /**
  * WiFi Info List Fragment.
  */
-class WiFiInfoListFragment : BaseFragment() {
+class WiFiInfoListFragment : BaseFragment(R.layout.fragment_common_progress) {
 
     companion object {
         const val PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 0
@@ -31,14 +28,9 @@ class WiFiInfoListFragment : BaseFragment() {
             return WiFiInfoListFragment()
         }
     }
-
+    private lateinit var binding: FragmentCommonProgressBinding
     private val presenter = WiFiInfoListPresenter()
-
     private var adapter: WiFiInfoListRecyclerViewAdapter? = null
-
-    private var progressBar: ProgressBar? = null
-
-    private var emptyView: TextView? = null
 
     private val listener = object: WiFiInfoListRecyclerViewAdapter.OnItemClickListener {
         override fun onItemClick(scanResult: ScanResult) {
@@ -53,19 +45,17 @@ class WiFiInfoListFragment : BaseFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        val view = inflater.inflate(R.layout.fragment_common_progress, container, false)
+        binding = FragmentCommonProgressBinding.inflate(layoutInflater)
+        binding.progressBar.visibility = View.VISIBLE
 
-        progressBar = view.progressBar
-        progressBar?.visibility = View.VISIBLE
-
-        view.recyclerView.layoutManager = LinearLayoutManager(activity)
+        binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         val list = ArrayList<ScanResult>()
         adapter = WiFiInfoListRecyclerViewAdapter(list)
-        view.recyclerView.adapter = adapter
+        binding.recyclerView.adapter = adapter
         adapter?.setOnItemClickListener(listener)
 
         val itemDecoration = DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
-        view.recyclerView.addItemDecoration(itemDecoration)
+        binding.recyclerView.addItemDecoration(itemDecoration)
 
         if (ContextCompat.checkSelfPermission(requireActivity(),
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -83,16 +73,14 @@ class WiFiInfoListFragment : BaseFragment() {
                 permissions,
                 PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION)
         }
-
-        emptyView = view.emptyView
-
-        return view
+        return binding.root
     }
 
     override fun getTitle(): Int {
         return R.string.screen_name_wifi_info_list
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
@@ -100,7 +88,7 @@ class WiFiInfoListFragment : BaseFragment() {
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             addWiFiList(adapter?.getItems())
         } else {
-            progressBar?.visibility = View.GONE
+            binding.progressBar?.visibility = View.GONE
         }
     }
 
@@ -108,14 +96,14 @@ class WiFiInfoListFragment : BaseFragment() {
         presenter.getWiFiInfoList(requireActivity(), object: WiFiInfoListPresenter.OnGetWiFiInfoListListener {
             override fun onGetWiFiInfoList(wifiInfoList: List<ScanResult>) {
                 if (wifiInfoList.isEmpty()) {
-                    emptyView?.setText(R.string.wifi_info_no_results_text)
-                    emptyView?.visibility = View.VISIBLE
+                    binding.emptyView?.setText(R.string.wifi_info_no_results_text)
+                    binding.emptyView?.visibility = View.VISIBLE
                 } else {
                     list?.addAll(wifiInfoList)
                     adapter?.notifyDataSetChanged()
-                    emptyView?.visibility = View.GONE
+                    binding.emptyView?.visibility = View.GONE
                 }
-                progressBar?.visibility = View.GONE
+                binding.progressBar?.visibility = View.GONE
             }
         })
     }

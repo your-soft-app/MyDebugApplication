@@ -12,24 +12,24 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import jp.co.yuji.mydebugapplication.R
+import jp.co.yuji.mydebugapplication.databinding.FragmentCommonBinding
 import jp.co.yuji.mydebugapplication.domain.model.CommonDto
 import jp.co.yuji.mydebugapplication.domain.model.MyBatteryInfo
 import jp.co.yuji.mydebugapplication.presentation.view.adapter.common.CommonRecyclerViewAdapter
 import jp.co.yuji.mydebugapplication.presentation.view.fragment.BaseFragment
 import jp.co.yuji.mydebugapplication.presentation.view.receiver.BatteryReceiver
-import kotlinx.android.synthetic.main.fragment_common.view.*
-import java.util.*
 
 /**
  * Battery Info Fragment.
  */
-class BatteryInfoFragment : BaseFragment() {
+class BatteryInfoFragment : BaseFragment(R.layout.fragment_common) {
 
     companion object {
         fun newInstance() : Fragment {
             return BatteryInfoFragment()
         }
     }
+    private lateinit var binding: FragmentCommonBinding
 
     private lateinit var adapter: CommonRecyclerViewAdapter
 
@@ -42,16 +42,16 @@ class BatteryInfoFragment : BaseFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        val view = inflater.inflate(R.layout.fragment_common, container, false)
-        view.recyclerView.layoutManager = LinearLayoutManager(activity)
+        binding = FragmentCommonBinding.inflate(layoutInflater)
+        binding.recyclerView.layoutManager = LinearLayoutManager(activity)
 
         if (activity != null) {
             val list = ArrayList<CommonDto>()
             adapter = CommonRecyclerViewAdapter(requireActivity(), list)
-            view.recyclerView.adapter = adapter
+            binding.recyclerView.adapter = adapter
         }
 
-        return view
+        return binding.root
     }
 
     override fun onResume() {

@@ -1,47 +1,48 @@
 package jp.co.yuji.mydebugapplication.presentation.view.fragment.hard
 
 import android.annotation.TargetApi
+import android.content.Context
+import android.media.AudioManager
+import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import jp.co.yuji.mydebugapplication.domain.model.CommonDto
-import jp.co.yuji.mydebugapplication.presentation.view.fragment.BaseFragment
-import kotlinx.android.synthetic.main.fragment_common.view.*
-import java.util.ArrayList
-import android.media.AudioManager
-import android.content.Context
-import android.os.Build
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import jp.co.yuji.mydebugapplication.R
+import jp.co.yuji.mydebugapplication.databinding.FragmentCommonBinding
+import jp.co.yuji.mydebugapplication.domain.model.CommonDto
 import jp.co.yuji.mydebugapplication.presentation.view.adapter.SoundInfoRecyclerViewAdapter
+import jp.co.yuji.mydebugapplication.presentation.view.fragment.BaseFragment
 
 
 /**
  * Sound Info Fragment.
  */
-class SoundInfoFragment : BaseFragment() {
+class SoundInfoFragment : BaseFragment(R.layout.fragment_common) {
 
     companion object {
         fun newInstance() : Fragment {
             return SoundInfoFragment()
         }
     }
+    private lateinit var binding: FragmentCommonBinding
 
     private lateinit var adapter: SoundInfoRecyclerViewAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        val view = inflater.inflate(jp.co.yuji.mydebugapplication.R.layout.fragment_common, container, false)
-        view.recyclerView.layoutManager = LinearLayoutManager(activity)
+        binding = FragmentCommonBinding.inflate(layoutInflater)
+        binding.recyclerView.layoutManager = LinearLayoutManager(activity)
 
         if (activity != null) {
             adapter = SoundInfoRecyclerViewAdapter(requireActivity(), getSoundInfo())
-            view.recyclerView.adapter = adapter
+            binding.recyclerView.adapter = adapter
         }
 
-        return view
+        return binding.root
     }
 
     override fun getTitle(): Int {

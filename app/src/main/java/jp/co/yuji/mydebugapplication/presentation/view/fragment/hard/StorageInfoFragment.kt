@@ -10,37 +10,37 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import jp.co.yuji.mydebugapplication.R
+import jp.co.yuji.mydebugapplication.databinding.FragmentCommonBinding
 import jp.co.yuji.mydebugapplication.domain.model.CommonDto
 import jp.co.yuji.mydebugapplication.presentation.view.adapter.common.CommonDetailRecyclerViewAdapter
 import jp.co.yuji.mydebugapplication.presentation.view.fragment.BaseFragment
-import kotlinx.android.synthetic.main.fragment_common.view.*
-import java.util.*
 
 /**
  * Storage Info Fragment.
  */
-class StorageInfoFragment : BaseFragment() {
+class StorageInfoFragment : BaseFragment(R.layout.fragment_common) {
 
     companion object {
         fun newInstance() : Fragment {
             return StorageInfoFragment()
         }
     }
+    private lateinit var binding: FragmentCommonBinding
 
     private lateinit var adapter: CommonDetailRecyclerViewAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        val view = inflater.inflate(R.layout.fragment_common, container, false)
-        view.recyclerView.layoutManager = LinearLayoutManager(activity)
+        binding = FragmentCommonBinding.inflate(layoutInflater)
+        binding.recyclerView.layoutManager = LinearLayoutManager(activity)
 
         if (activity != null) {
             adapter = CommonDetailRecyclerViewAdapter(requireActivity(), getStorageInfo())
-            view.recyclerView.adapter = adapter
+            binding.recyclerView.adapter = adapter
         }
 
-        return view
+        return binding.root
     }
 
     override fun getTitle(): Int {

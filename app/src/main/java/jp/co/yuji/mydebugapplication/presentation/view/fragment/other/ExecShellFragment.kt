@@ -6,58 +6,55 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
 import jp.co.yuji.mydebugapplication.R
+import jp.co.yuji.mydebugapplication.databinding.FragmentAdbShellBinding
 import jp.co.yuji.mydebugapplication.presentation.presenter.other.ExecShellPresenter
 import jp.co.yuji.mydebugapplication.presentation.view.fragment.BaseFragment
-import kotlinx.android.synthetic.main.fragment_adb_shell.view.*
 
 /**
  * Exec Shell Fragment.
  */
-class ExecShellFragment : BaseFragment() {
+class ExecShellFragment : BaseFragment(R.layout.fragment_adb_shell) {
 
     companion object {
         fun newInstance() : Fragment {
             return ExecShellFragment()
         }
     }
-
+    private lateinit var binding: FragmentAdbShellBinding
     private val presenter = ExecShellPresenter()
-
-    private var progressBar: ProgressBar? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        val view = inflater.inflate(R.layout.fragment_adb_shell, container, false)
+        binding = FragmentAdbShellBinding.inflate(layoutInflater)
 
-        view.adbShellResultText.text = "pm list features\n" +
-                "pm list libraries\n" +
-                "ls /system/bin\n" +
-                "etc"
+        val supportMessage =
+            "pm list features\n" +
+            "pm list libraries\n" +
+            "ls /system/usr\n" +
+            "etc"
+        binding.adbShellResultText.text = supportMessage
 
-        view.adbShellExecuteButton.setOnClickListener {
-            view.adbShellResultText.text = getExecuteText(view.adbShellEditText.text.toString())
-            view.hideKeyboard()
-            view.adbShellResultText.requestFocus()
+        binding.adbShellExecuteButton.setOnClickListener {
+            binding.adbShellResultText.text = getExecuteText(binding.adbShellEditText.text.toString())
+            binding.root.hideKeyboard()
+            binding.adbShellResultText.requestFocus()
+            binding.progressBar.visibility = View.VISIBLE
 
-            progressBar = view.progressBar
-            progressBar?.visibility = View.VISIBLE
-
-            val command = view.adbShellEditText.text.toString()
+            val command = binding.adbShellEditText.text.toString()
             presenter.execShell(command, object : ExecShellPresenter.OnExecShellListener {
                 override fun onExecShell(result: String) {
-                    view.adbShellResultText.text = getExecuteText(result)
-                    view.hideKeyboard()
-                    view.adbShellResultText.requestFocus()
-                    progressBar?.visibility = View.GONE
+                    binding.adbShellResultText.text = getExecuteText(result)
+                    binding.root.hideKeyboard()
+                    binding.adbShellResultText.requestFocus()
+                    binding.progressBar?.visibility = View.GONE
                 }
             })
         }
 
-        return view
+        return binding.root
     }
 
     override fun getTitle(): Int {

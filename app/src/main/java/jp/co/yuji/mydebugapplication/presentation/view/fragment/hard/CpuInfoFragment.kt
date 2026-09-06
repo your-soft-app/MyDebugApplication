@@ -1,20 +1,20 @@
 package jp.co.yuji.mydebugapplication.presentation.view.fragment.hard
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import jp.co.yuji.mydebugapplication.R
+import jp.co.yuji.mydebugapplication.databinding.FragmentCommonLogBinding
 import jp.co.yuji.mydebugapplication.presentation.view.fragment.BaseFragment
-import kotlinx.android.synthetic.main.fragment_common_log.view.*
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
 /**
  * Cpu Info Fragment.
  */
-class CpuInfoFragment : BaseFragment() {
+class CpuInfoFragment : BaseFragment(R.layout.fragment_common_log) {
 
     companion object {
         const val command = "cat proc/cpuinfo"
@@ -22,13 +22,14 @@ class CpuInfoFragment : BaseFragment() {
             return CpuInfoFragment()
         }
     }
+    private lateinit var binding: FragmentCommonLogBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        val view = inflater.inflate(R.layout.fragment_common_log, container, false)
-        view.logText.text = execute(command)
-        return view
+        binding = FragmentCommonLogBinding.inflate(layoutInflater)
+        binding.logText.text = execute(command)
+        return binding.root
     }
 
     override fun getTitle(): Int {

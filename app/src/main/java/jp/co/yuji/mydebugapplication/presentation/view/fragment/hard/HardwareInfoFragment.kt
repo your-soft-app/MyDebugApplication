@@ -1,52 +1,48 @@
 package jp.co.yuji.mydebugapplication.presentation.view.fragment.hard
 
 import android.os.Bundle
-import androidx.annotation.Nullable
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.gms.ads.AdRequest
 import jp.co.yuji.mydebugapplication.R
+import jp.co.yuji.mydebugapplication.databinding.FragmentHardInfoBinding
 import jp.co.yuji.mydebugapplication.presentation.view.adapter.common.CommonInfoRecyclerViewAdapter
 import jp.co.yuji.mydebugapplication.presentation.view.fragment.BaseFragment
-import kotlinx.android.synthetic.main.fragment_hard_info.view.*
-import java.util.*
 
 /**
  * Hardware Info Fragment.
  */
-class HardwareInfoFragment : BaseFragment() {
+class HardwareInfoFragment : BaseFragment(R.layout.fragment_hard_info) {
 
     companion object {
         fun newInstance() : Fragment {
             return HardwareInfoFragment()
         }
     }
+    private lateinit var binding: FragmentHardInfoBinding
 
     private val listener = object: CommonInfoRecyclerViewAdapter.OnItemClickListener {
         override fun onItemClick(position: Int) {
-            var fragment: Fragment? = null
             val type = Type.find(position)
-            when (type) {
-                Type.SENSOR -> fragment = SensorInfoFragment.newInstance()
-                Type.DISPLAY -> fragment = DisplayInfoFragment.newInstance()
-                Type.CAMERA -> fragment = CameraInfoFragment.newInstance()
-                Type.CPU -> fragment = CpuInfoFragment.newInstance()
-                Type.MEMORY -> fragment = MemoryInfoFragment.newInstance()
-                Type.BATTERY -> fragment = BatteryInfoFragment.newInstance()
-                Type.STORAGE -> fragment = StorageInfoFragment.newInstance()
-                Type.SOUND -> fragment = SoundInfoFragment.newInstance()
-                Type.TELEPHONE -> fragment = TelephoneInfoFragment.newInstance()
+            val fragment = when (type) {
+                Type.SENSOR -> SensorInfoFragment.newInstance()
+                Type.DISPLAY -> DisplayInfoFragment.newInstance()
+                Type.CAMERA -> CameraInfoFragment.newInstance()
+                Type.CPU -> CpuInfoFragment.newInstance()
+                Type.MEMORY -> MemoryInfoFragment.newInstance()
+                Type.BATTERY -> BatteryInfoFragment.newInstance()
+                Type.STORAGE -> StorageInfoFragment.newInstance()
+                Type.SOUND -> SoundInfoFragment.newInstance()
+                Type.TELEPHONE -> TelephoneInfoFragment.newInstance()
+                null -> SensorInfoFragment.newInstance()
             }
-            if (fragment != null) {
-                activity?.supportFragmentManager?.beginTransaction()
-                        ?.replace(R.id.container, fragment)
-                        ?.addToBackStack(null)
-                        ?.commit()
-            }
+            activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.container, fragment)
+                    ?.addToBackStack(null)
+                    ?.commit()
             postLogEvent("hardware type: ${type?.title}")
         }
     }
@@ -54,20 +50,19 @@ class HardwareInfoFragment : BaseFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        val view = inflater.inflate(R.layout.fragment_hard_info, container, false)
-        view.recyclerView.layoutManager = LinearLayoutManager(activity)
+        binding = FragmentHardInfoBinding.inflate(layoutInflater)
+        binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         val adapter = CommonInfoRecyclerViewAdapter(getHardwareInfo())
-        view.recyclerView.adapter = adapter
+        binding.recyclerView.adapter = adapter
         adapter.setOnItemClickListener(listener)
 
         val itemDecoration = DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
-        view.recyclerView.addItemDecoration(itemDecoration)
+        binding.recyclerView.addItemDecoration(itemDecoration)
 
         // ad
-        val adRequest = AdRequest.Builder().build()
-        view.adView.loadAd(adRequest)
+        loadBannerAd(binding.adView, requireActivity(), getString(R.string.hardware_info_bottom_unit_id))
 
-        return view
+        return binding.root
     }
 
     override fun getTitle(): Int {
@@ -77,7 +72,7 @@ class HardwareInfoFragment : BaseFragment() {
     private fun getHardwareInfo() : List<String> {
         val list = ArrayList<String>()
 
-        for (type in Type.values()) {
+        for (type in Type.entries) {
             list.add(type.position, type.title)
         }
 
@@ -96,9 +91,8 @@ class HardwareInfoFragment : BaseFragment() {
         TELEPHONE("Telephone", 8);
 
         companion object {
-            @Nullable
             fun find(position: Int): Type? {
-                return Type.values().firstOrNull { it.position == position }
+                return entries.firstOrNull { it.position == position }
             }
         }
     }

@@ -4,53 +4,52 @@ import android.app.AlarmManager
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import jp.co.yuji.mydebugapplication.R
+import jp.co.yuji.mydebugapplication.databinding.FragmentCommonBinding
 import jp.co.yuji.mydebugapplication.domain.model.CommonDto
 import jp.co.yuji.mydebugapplication.presentation.view.adapter.common.CommonRecyclerViewAdapter
 import jp.co.yuji.mydebugapplication.presentation.view.fragment.BaseFragment
-import kotlinx.android.synthetic.main.fragment_common.view.*
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
-class AlarmManagerFragment : BaseFragment() {
+class AlarmManagerFragment : BaseFragment(R.layout.fragment_common) {
 
     companion object {
         fun newInstance() : Fragment {
             return AlarmManagerFragment()
         }
     }
+    private lateinit var binding: FragmentCommonBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        val view = inflater.inflate(R.layout.fragment_common, container, false)
+        binding = FragmentCommonBinding.inflate(layoutInflater)
 
-        view.recyclerView.layoutManager = LinearLayoutManager(activity)
+        binding.recyclerView.layoutManager = LinearLayoutManager(activity)
 
         if (activity != null) {
             val adapter = CommonRecyclerViewAdapter(requireActivity(), getAlarmManagerInfo(requireActivity()))
-            view.recyclerView.adapter = adapter
+            binding.recyclerView.adapter = adapter
 
             if (adapter.items.isEmpty()) {
-                view.recyclerView.visibility = View.GONE
-                view.emptyView.text = getString(R.string.alarm_manager_no_data_text)
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                    view.emptyView.text = getString(R.string.alarm_manager_under_lollipop_no_data_text)
-                }
-                view.emptyView.visibility = View.VISIBLE
+                binding.recyclerView.visibility = View.GONE
+                binding.emptyView.text = getString(R.string.alarm_manager_no_data_text)
+                binding.emptyView.visibility = View.VISIBLE
             } else {
-                view.recyclerView.visibility = View.VISIBLE
-                view.emptyView.visibility = View.GONE
+                binding.recyclerView.visibility = View.VISIBLE
+                binding.emptyView.visibility = View.GONE
             }
         }
 
-        return view
+        return binding.root
     }
 
     override fun getTitle(): Int {

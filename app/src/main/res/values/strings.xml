@@ -47,7 +47,8 @@
     <string name="wifi_info_no_results_text">No results</string>
 
     <!-- Adb Shell -->
-    <string name="adb_shell_edit_text_hint">input shell command</string>
+    <string name="adb_shell_edit_text_message">input shell command</string>
+    <string name="adb_shell_edit_text_hint">input here</string>
     <string name="adb_shell_execute_button_text">execute</string>
 
     <!-- Pinning -->

@@ -4,42 +4,44 @@ import android.content.Context
 import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.util.DisplayMetrics
-import android.view.*
+import android.view.Display
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import jp.co.yuji.mydebugapplication.R
+import jp.co.yuji.mydebugapplication.databinding.FragmentCommonBinding
 import jp.co.yuji.mydebugapplication.domain.model.CommonDto
 import jp.co.yuji.mydebugapplication.presentation.view.adapter.common.CommonDetailRecyclerViewAdapter
 import jp.co.yuji.mydebugapplication.presentation.view.fragment.BaseFragment
-import kotlinx.android.synthetic.main.fragment_common.view.*
-import java.util.*
 
 
-class DisplayInfoFragment  : BaseFragment() {
+class DisplayInfoFragment  : BaseFragment(R.layout.fragment_common) {
 
     companion object {
         fun newInstance() : Fragment {
             return DisplayInfoFragment()
         }
     }
+    private lateinit var binding: FragmentCommonBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        val view = inflater.inflate(R.layout.fragment_common, container, false)
-
-
-        view.recyclerView.layoutManager = LinearLayoutManager(activity)
+        binding = FragmentCommonBinding.inflate(layoutInflater)
+        binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         if (activity != null) {
-            val adapter = CommonDetailRecyclerViewAdapter(activity!!, getDisplayInfo())
-            view.recyclerView.adapter = adapter
+            val adapter = CommonDetailRecyclerViewAdapter(requireActivity(), getDisplayInfo())
+            binding.recyclerView.adapter = adapter
         }
 
         val itemDecoration = DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
-        view.recyclerView.addItemDecoration(itemDecoration)
-        return view
+        binding.recyclerView.addItemDecoration(itemDecoration)
+        return binding.root
     }
 
     override fun getTitle(): Int {

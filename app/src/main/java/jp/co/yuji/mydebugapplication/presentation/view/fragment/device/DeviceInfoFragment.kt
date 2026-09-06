@@ -10,27 +10,28 @@ import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.os.SystemClock
 import android.provider.Settings
-import androidx.fragment.app.Fragment
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import jp.co.yuji.mydebugapplication.R
+import jp.co.yuji.mydebugapplication.databinding.FragmentCommonBinding
 import jp.co.yuji.mydebugapplication.domain.model.CommonDto
 import jp.co.yuji.mydebugapplication.presentation.view.adapter.common.CommonRecyclerViewAdapter
 import jp.co.yuji.mydebugapplication.presentation.view.fragment.BaseFragment
 import java.math.BigInteger
 import java.net.InetAddress
-import java.util.*
-import kotlinx.android.synthetic.main.fragment_common.view.*
+import java.util.Locale
+import java.util.TimeZone
 
 
 /**
  * Device Info Fragment.
  */
-class DeviceInfoFragment : BaseFragment() {
+class DeviceInfoFragment : BaseFragment(R.layout.fragment_common) {
 
     companion object {
         fun newInstance() : Fragment {
@@ -38,18 +39,20 @@ class DeviceInfoFragment : BaseFragment() {
         }
     }
 
+    private lateinit var binding: FragmentCommonBinding
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        val view = inflater.inflate(R.layout.fragment_common, container, false)
+        binding = FragmentCommonBinding.inflate(layoutInflater)
 
-        view.recyclerView.layoutManager = LinearLayoutManager(activity)
+        binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         if (activity != null) {
             val adapter = CommonRecyclerViewAdapter(requireActivity(), getDeviceInfo())
-            view.recyclerView.adapter = adapter
+            binding.recyclerView.adapter = adapter
         }
 
-        return view
+        return binding.root
     }
 
     override fun getTitle(): Int {

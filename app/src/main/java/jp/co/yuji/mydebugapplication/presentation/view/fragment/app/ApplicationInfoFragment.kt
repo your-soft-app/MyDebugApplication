@@ -1,30 +1,28 @@
 package jp.co.yuji.mydebugapplication.presentation.view.fragment.app
 
 import android.os.Bundle
-import androidx.annotation.Nullable
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.gms.ads.AdRequest
 import jp.co.yuji.mydebugapplication.R
+import jp.co.yuji.mydebugapplication.databinding.FragmentAppInfoBinding
 import jp.co.yuji.mydebugapplication.presentation.view.adapter.common.CommonInfoRecyclerViewAdapter
 import jp.co.yuji.mydebugapplication.presentation.view.fragment.BaseFragment
-import kotlinx.android.synthetic.main.fragment_app_info.view.*
-import java.util.*
 
 /**
  * Application Info Fragment.
  */
-class ApplicationInfoFragment : BaseFragment() {
+class ApplicationInfoFragment : BaseFragment(R.layout.fragment_app_info) {
 
     companion object {
         fun newInstance() : Fragment {
             return ApplicationInfoFragment()
         }
     }
+    private lateinit var binding: FragmentAppInfoBinding
 
     private val listener = object:CommonInfoRecyclerViewAdapter.OnItemClickListener {
         override fun onItemClick(position: Int) {
@@ -40,21 +38,20 @@ class ApplicationInfoFragment : BaseFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        val view = inflater.inflate(R.layout.fragment_app_info, container, false)
+        binding = FragmentAppInfoBinding.inflate(layoutInflater)
 
-        view.recyclerView.layoutManager = LinearLayoutManager(activity)
+        binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         val adapter = CommonInfoRecyclerViewAdapter(getApplicationInfo())
-        view.recyclerView.adapter = adapter
+        binding.recyclerView.adapter = adapter
         adapter.setOnItemClickListener(listener)
 
         val itemDecoration = DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
-        view.recyclerView.addItemDecoration(itemDecoration)
+        binding.recyclerView.addItemDecoration(itemDecoration)
 
         // ad
-        val adRequest = AdRequest.Builder().build()
-        view.adView.loadAd(adRequest)
+        loadBannerAd(binding.adView, requireActivity(), getString(R.string.app_info_bottom_unit_id))
 
-        return view
+        return binding.root
     }
 
     override fun getTitle(): Int {
@@ -64,7 +61,7 @@ class ApplicationInfoFragment : BaseFragment() {
     private fun getApplicationInfo() : List<String> {
         val list = ArrayList<String>()
 
-        for (type in ActionType.values()) {
+        for (type in ActionType.entries) {
             list.add(type.position, type.title)
         }
 
@@ -92,9 +89,8 @@ class ApplicationInfoFragment : BaseFragment() {
         BROWSER("Browser App", 17);
 
         companion object {
-            @Nullable
             fun find(position: Int): ActionType? {
-                return values().firstOrNull { it.position == position }
+                return entries.firstOrNull { it.position == position }
             }
         }
     }

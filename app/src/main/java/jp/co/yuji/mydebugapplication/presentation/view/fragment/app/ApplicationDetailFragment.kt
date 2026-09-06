@@ -9,16 +9,15 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import jp.co.yuji.mydebugapplication.R
+import jp.co.yuji.mydebugapplication.databinding.FragmentCommonBinding
 import jp.co.yuji.mydebugapplication.domain.model.CommonDto
 import jp.co.yuji.mydebugapplication.presentation.view.adapter.common.CommonDetailRecyclerViewAdapter
 import jp.co.yuji.mydebugapplication.presentation.view.fragment.BaseFragment
-import kotlinx.android.synthetic.main.fragment_common.view.*
-import java.util.*
 
 /**
  * Application Detail Fragment.
  */
-class ApplicationDetailFragment : BaseFragment() {
+class ApplicationDetailFragment : BaseFragment(R.layout.fragment_common) {
 
     companion object {
 
@@ -33,23 +32,24 @@ class ApplicationDetailFragment : BaseFragment() {
         }
     }
 
+    private lateinit var binding: FragmentCommonBinding
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        val view = inflater.inflate(R.layout.fragment_common, container, false)
-
-        view.recyclerView.layoutManager = LinearLayoutManager(activity)
+        binding = FragmentCommonBinding.inflate(layoutInflater)
+        binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         val packageName = arguments?.getString(ARG_KEY)
 
         if (activity != null && packageName != null) {
             val adapter = CommonDetailRecyclerViewAdapter(requireActivity(), getApplicationDetail(packageName))
-            view.recyclerView.adapter = adapter
+            binding.recyclerView.adapter = adapter
         }
 
         val itemDecoration = DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
-        view.recyclerView.addItemDecoration(itemDecoration)
+        binding.recyclerView.addItemDecoration(itemDecoration)
 
-        return view
+        return binding.root
     }
 
     override fun getTitle(): Int {
@@ -94,14 +94,10 @@ class ApplicationDetailFragment : BaseFragment() {
                 }
                 list.add(CommonDto("sharedLibraryFiles", applicationInfo.sharedLibraryFiles?.toString().orEmpty()))
                 list.add(CommonDto("dataDir", applicationInfo.dataDir?.toString().orEmpty()))
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    list.add(CommonDto("deviceProtectedDataDir", applicationInfo.deviceProtectedDataDir?.toString().orEmpty()))
-                }
+                list.add(CommonDto("deviceProtectedDataDir", applicationInfo.deviceProtectedDataDir?.toString().orEmpty()))
                 list.add(CommonDto("nativeLibraryDir", applicationInfo.nativeLibraryDir?.toString().orEmpty()))
                 list.add(CommonDto("uid", applicationInfo.uid.toString()))
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    list.add(CommonDto("minSdkVersion", applicationInfo.minSdkVersion.toString()))
-                }
+                list.add(CommonDto("minSdkVersion", applicationInfo.minSdkVersion.toString()))
                 list.add(CommonDto("targetSdkVersion", applicationInfo.targetSdkVersion.toString()))
                 list.add(CommonDto("enabled", applicationInfo.enabled.toString()))
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import jp.co.yuji.mydebugapplication.R
+import jp.co.yuji.mydebugapplication.databinding.ActivityPinningBinding
 import jp.co.yuji.mydebugapplication.presentation.view.fragment.other.PinningActivityFragment
 
 /**
@@ -23,9 +24,12 @@ class PinningActivity : BaseActivity() {
         }
     }
 
+    private lateinit var binding: ActivityPinningBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_pinning)
+        binding = ActivityPinningBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // init view
         val fragment = PinningActivityFragment.newInstance(intent.getIntExtra(ARG_KEY,

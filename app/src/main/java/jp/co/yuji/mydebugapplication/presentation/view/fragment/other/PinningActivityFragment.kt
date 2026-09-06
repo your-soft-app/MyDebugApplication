@@ -1,26 +1,23 @@
 package jp.co.yuji.mydebugapplication.presentation.view.fragment.other
 
-import android.annotation.TargetApi
 import android.app.ActivityManager
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import jp.co.yuji.mydebugapplication.R
+import jp.co.yuji.mydebugapplication.databinding.FragmentActivityPinningBinding
 import jp.co.yuji.mydebugapplication.presentation.view.fragment.BaseFragment
 import jp.co.yuji.mydebugapplication.presentation.view.receiver.MyDeviceAdminReceiver
-import kotlinx.android.synthetic.main.fragment_activity_pinning.view.*
 
 /**
  * Pinning Activity Fragment.
  */
-class PinningActivityFragment : BaseFragment() {
+class PinningActivityFragment : BaseFragment(R.layout.fragment_activity_pinning) {
 
     companion object {
 
@@ -34,6 +31,7 @@ class PinningActivityFragment : BaseFragment() {
             return fragment
         }
     }
+    private lateinit var binding: FragmentActivityPinningBinding
 
     enum class PinningType(val type: Int, val strResId: Int)  {
         PINNING(1, R.string.screen_name_pinning),
@@ -41,15 +39,13 @@ class PinningActivityFragment : BaseFragment() {
     }
 
     private var devicePolicyManager : DevicePolicyManager? = null
-
     private var deviceAdmin : ComponentName? = null
-
     private var activityManager : ActivityManager? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        val view = inflater.inflate(R.layout.fragment_activity_pinning, container, false)
+        binding = FragmentActivityPinningBinding.inflate(layoutInflater)
         val type = arguments?.getInt(ARG_KEY)
         val pinningType = PinningType.values().first { type == it.type }
         setTitleLazy(pinningType.strResId)
@@ -63,39 +59,31 @@ class PinningActivityFragment : BaseFragment() {
         when (pinningType) {
             PinningType.PINNING -> {
                 startPinning()
-                view.finishPinningActivityButton?.setText(R.string.finish_pinning_activity)
+                binding.finishPinningActivityButton.setText(R.string.finish_pinning_activity)
             }
             PinningType.LOCK_TASK -> {
                 startLockTask()
-                view.finishPinningActivityButton?.setText(R.string.finish_lock_task_activity)
+                binding.finishPinningActivityButton.setText(R.string.finish_lock_task_activity)
             }
         }
-        view.finishPinningActivityButton?.setOnClickListener { stopPinning() }
+        binding.finishPinningActivityButton.setOnClickListener { stopPinning() }
 
-        return view
+        return binding.root
     }
 
     override fun getTitle(): Int {
         return R.string.screen_name_pinning
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private fun startPinning() {
         executeForApiLevel21orHigher {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-                if (activityManager != null && !activityManager!!.isInLockTaskMode) {
-                    activity?.startLockTask()
-                }
-            } else {
-                println(activityManager?.lockTaskModeState)
-                if (activityManager?.lockTaskModeState == ActivityManager.LOCK_TASK_MODE_NONE) {
-                    activity?.startLockTask()
-                }
+            println(activityManager?.lockTaskModeState)
+            if (activityManager?.lockTaskModeState == ActivityManager.LOCK_TASK_MODE_NONE) {
+                activity?.startLockTask()
             }
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private fun startLockTask() {
         if (devicePolicyManager != null && devicePolicyManager!!.isDeviceOwnerApp(activity?.packageName) && deviceAdmin != null) {
             devicePolicyManager?.setLockTaskPackages(deviceAdmin!!, arrayOf(activity?.packageName))
@@ -103,27 +91,16 @@ class PinningActivityFragment : BaseFragment() {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private fun stopPinning() {
         executeForApiLevel21orHigher {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-                if (activityManager != null && activityManager!!.isInLockTaskMode) {
-                    activity?.stopLockTask()
-                }
-            } else {
-                if (activityManager?.lockTaskModeState != ActivityManager.LOCK_TASK_MODE_NONE) {
-                    activity?.stopLockTask()
-                }
+            if (activityManager?.lockTaskModeState != ActivityManager.LOCK_TASK_MODE_NONE) {
+                activity?.stopLockTask()
             }
         }
         activity?.finish()
     }
 
     private fun executeForApiLevel21orHigher(execute: () -> Unit) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            Toast.makeText(activity, R.string.error_support_api_level_21, Toast.LENGTH_LONG).show()
-            return
-        }
         execute()
     }
 }

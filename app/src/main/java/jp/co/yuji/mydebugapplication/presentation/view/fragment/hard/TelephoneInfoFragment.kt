@@ -13,14 +13,13 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import jp.co.yuji.mydebugapplication.R
+import jp.co.yuji.mydebugapplication.databinding.FragmentCommonBinding
 import jp.co.yuji.mydebugapplication.domain.model.CommonDto
 import jp.co.yuji.mydebugapplication.presentation.view.adapter.common.CommonSelectableRecyclerViewAdapter
 import jp.co.yuji.mydebugapplication.presentation.view.fragment.BaseFragment
-import kotlinx.android.synthetic.main.fragment_common.view.*
-import java.util.*
 
 
-class TelephoneInfoFragment : BaseFragment() {
+class TelephoneInfoFragment : BaseFragment(R.layout.fragment_common) {
 
     companion object {
         const val PERMISSIONS_REQUEST_CODE_READ_PHONE_STATE = 0
@@ -28,24 +27,25 @@ class TelephoneInfoFragment : BaseFragment() {
             return TelephoneInfoFragment()
         }
     }
+    private lateinit var binding: FragmentCommonBinding
 
     private lateinit var adapter: CommonSelectableRecyclerViewAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        val view = inflater.inflate(R.layout.fragment_common, container, false)
-        view.recyclerView.layoutManager = LinearLayoutManager(activity)
+        binding = FragmentCommonBinding.inflate(layoutInflater)
+        binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         val list = ArrayList<CommonDto>()
 
         if (activity != null) {
             adapter = CommonSelectableRecyclerViewAdapter(requireActivity(), list)
-            view.recyclerView.adapter = adapter
+            binding.recyclerView.adapter = adapter
         }
 
         addTelephoneInfo(list)
         addRequiredPermissionTelephoneInfo(list)
-        return view
+        return binding.root
     }
 
     override fun getTitle(): Int {
@@ -82,10 +82,8 @@ class TelephoneInfoFragment : BaseFragment() {
 
         val telephonyManager = activity?.getSystemService(TELEPHONY_SERVICE) as TelephonyManager
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val phoneCount = telephonyManager.phoneCount
-            list.add(CommonDto("phoneCount", phoneCount.toString()))
-        }
+        val phoneCount = telephonyManager.phoneCount
+        list.add(CommonDto("phoneCount", phoneCount.toString()))
 
         val phoneType = telephonyManager.phoneType
         list.add(CommonDto("phoneType", phoneType.toString()))
@@ -147,35 +145,27 @@ class TelephoneInfoFragment : BaseFragment() {
         val dataState = telephonyManager.dataState
         list.add(CommonDto("dataState", dataState.toString()))
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            val isVoiceCapable = telephonyManager.isVoiceCapable
-            val isVoiceCapableString = if (isVoiceCapable) "true" else "false"
-            list.add(CommonDto("isVoiceCapable", isVoiceCapableString))
+        val isVoiceCapable = telephonyManager.isVoiceCapable
+        val isVoiceCapableString = if (isVoiceCapable) "true" else "false"
+        list.add(CommonDto("isVoiceCapable", isVoiceCapableString))
+
+        val isSmsCapable = telephonyManager.isSmsCapable
+        val isSmsCapableString = if (isSmsCapable) "true" else "false"
+        list.add(CommonDto("isSmsCapable", isSmsCapableString))
+
+        val mmsUserAgent = telephonyManager.mmsUserAgent
+        if (mmsUserAgent != null) {
+            list.add(CommonDto("mmsUserAgent", mmsUserAgent))
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val isSmsCapable = telephonyManager.isSmsCapable
-            val isSmsCapableString = if (isSmsCapable) "true" else "false"
-            list.add(CommonDto("isSmsCapable", isSmsCapableString))
+        val mmsUAProfUrl = telephonyManager.mmsUAProfUrl
+        if (mmsUAProfUrl != null) {
+            list.add(CommonDto("mmsUAProfUrl", mmsUAProfUrl))
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            val mmsUserAgent = telephonyManager.mmsUserAgent
-            if (mmsUserAgent != null) {
-                list.add(CommonDto("mmsUserAgent", mmsUserAgent))
-            }
-
-            val mmsUAProfUrl = telephonyManager.mmsUAProfUrl
-            if (mmsUAProfUrl != null) {
-                list.add(CommonDto("mmsUAProfUrl", mmsUAProfUrl))
-            }
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            val hasCarrierPrivileges = telephonyManager.hasCarrierPrivileges()
-            val hasCarrierPrivilegesString = if (hasCarrierPrivileges) "true" else "false"
-            list.add(CommonDto("hasCarrierPrivileges", hasCarrierPrivilegesString))
-        }
+        val hasCarrierPrivileges = telephonyManager.hasCarrierPrivileges()
+        val hasCarrierPrivilegesString = if (hasCarrierPrivileges) "true" else "false"
+        list.add(CommonDto("hasCarrierPrivileges", hasCarrierPrivilegesString))
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val isConcurrentVoiceAndDataSupported = telephonyManager.isConcurrentVoiceAndDataSupported

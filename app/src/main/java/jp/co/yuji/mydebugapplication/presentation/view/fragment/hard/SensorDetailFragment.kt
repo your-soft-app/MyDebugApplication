@@ -7,20 +7,19 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.fragment.app.Fragment
 import jp.co.yuji.mydebugapplication.R
+import jp.co.yuji.mydebugapplication.databinding.FragmentSensorDetailBinding
 import jp.co.yuji.mydebugapplication.presentation.view.fragment.BaseFragment
-import kotlinx.android.synthetic.main.fragment_sensor_detail.view.*
 
 
 /**
  * Sensor Detail Fragment.
  */
-class SensorDetailFragment : BaseFragment() {
+class SensorDetailFragment : BaseFragment(R.layout.fragment_sensor_detail) {
 
     companion object {
 
@@ -37,22 +36,16 @@ class SensorDetailFragment : BaseFragment() {
         }
     }
 
+    private lateinit var binding: FragmentSensorDetailBinding
     private var sensorManager: SensorManager? = null
-
     private var sensorType: Int = SENSOR_TYPE_DEFAULT
-
     private var sensorList: List<Sensor>? = null
-
     private var sensor: Sensor? = null
-
-    private var accuracyChangeText: TextView? = null
-
-    private var sensorChangeText: TextView? = null
 
     private var listener = object: SensorEventListener {
 
         override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {
-            accuracyChangeText?.text = "type : " + sensor.type.toString() + "\naccuracy : " + accuracy.toString()
+            binding.accuracyChangedText.text = "type : " + sensor.type.toString() + "\naccuracy : " + accuracy.toString()
         }
 
         override fun onSensorChanged(event: SensorEvent) {
@@ -64,14 +57,14 @@ class SensorDetailFragment : BaseFragment() {
                     stringBuilder.append("values[" + i.toString() + "] : " + values[i] + "\n")
                 }
             }
-            sensorChangeText?.text = stringBuilder.toString()
+            binding.sensorChangeText.text = stringBuilder.toString()
         }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        val view = inflater.inflate(R.layout.fragment_sensor_detail, container, false)
+        binding = FragmentSensorDetailBinding.inflate(layoutInflater)
         sensorManager = activity?.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         val type = arguments?.getInt(ARG_KEY)
         if (type != null) {
@@ -81,11 +74,9 @@ class SensorDetailFragment : BaseFragment() {
         sensor = sensorList?.get(0)
 
         if (sensor != null) {
-            view.sensorText?.text = getSensorBaseText(sensor!!)
+            binding.sensorText.text = getSensorBaseText(sensor!!)
         }
-        accuracyChangeText = view.accuracyChangedText
-        sensorChangeText = view.sensorChangeText
-        return view
+        return binding.root
     }
 
     override fun onResume() {
@@ -113,36 +104,26 @@ class SensorDetailFragment : BaseFragment() {
     private fun getSensorBaseText(s: Sensor): String {
         val stringBuilder = StringBuilder()
         stringBuilder.append("name : " + s.name?.toString().orEmpty() + "\n")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            stringBuilder.append("fifoMaxEventCount : " + s.fifoMaxEventCount.toString() + "\n")
-            stringBuilder.append("fifoReservedEventCount : " + s.fifoReservedEventCount.toString() + "\n")
+        stringBuilder.append("fifoMaxEventCount : " + s.fifoMaxEventCount.toString() + "\n")
+        stringBuilder.append("fifoReservedEventCount : " + s.fifoReservedEventCount.toString() + "\n")
 
-        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             stringBuilder.append("highestDirectReportRateLevel : " + s.highestDirectReportRateLevel.toString() + "\n")
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            stringBuilder.append("id : " + s.id + "\n")
-            stringBuilder.append("isAdditionalInfoSupported : " + s.isAdditionalInfoSupported.toString() + "\n")
-            stringBuilder.append("isDynamicSensor : " + s.isDynamicSensor.toString() + "\n")
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            stringBuilder.append("isWakeUpSensor : " + s.isWakeUpSensor.toString() + "\n")
-            stringBuilder.append("maxDelay : " + s.maxDelay.toString() + "\n")
-        }
+        stringBuilder.append("id : " + s.id + "\n")
+        stringBuilder.append("isAdditionalInfoSupported : " + s.isAdditionalInfoSupported.toString() + "\n")
+        stringBuilder.append("isDynamicSensor : " + s.isDynamicSensor.toString() + "\n")
+        stringBuilder.append("isWakeUpSensor : " + s.isWakeUpSensor.toString() + "\n")
+        stringBuilder.append("maxDelay : " + s.maxDelay.toString() + "\n")
 
 
         stringBuilder.append("maximumRange : " + s.maximumRange.toString() + "\n")
         stringBuilder.append("power : " + s.power.toString() + "\n")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            stringBuilder.append("reportingMode : " + s.reportingMode.toString() + "\n")
-        }
+        stringBuilder.append("reportingMode : " + s.reportingMode.toString() + "\n")
 
         stringBuilder.append("resolution : " + s.resolution.toString() + "\n")
         stringBuilder.append("minDelay : " + s.minDelay.toString() + "\n")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
-            stringBuilder.append("stringType : " + s.stringType?.toString().orEmpty() + "\n")
-        }
+        stringBuilder.append("stringType : " + s.stringType?.toString().orEmpty() + "\n")
         stringBuilder.append("vendor : " + s.vendor?.toString().orEmpty() + "\n")
         stringBuilder.append("version : " + s.version + "\n")
         return stringBuilder.toString()

@@ -4,14 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
 import jp.co.yuji.mydebugapplication.R
+import jp.co.yuji.mydebugapplication.databinding.FragmentCommonLogProgressBinding
 import jp.co.yuji.mydebugapplication.presentation.presenter.other.PortDetailPresenter
 import jp.co.yuji.mydebugapplication.presentation.view.fragment.BaseFragment
-import kotlinx.android.synthetic.main.fragment_common_log_progress.view.*
 
-class PortDetailFragment: BaseFragment() {
+class PortDetailFragment: BaseFragment(R.layout.fragment_common_log_progress) {
 
     companion object {
         const val ARG_KEY = "arg_key"
@@ -23,29 +22,26 @@ class PortDetailFragment: BaseFragment() {
             return fragment
         }
     }
+    private lateinit var binding: FragmentCommonLogProgressBinding
 
     private val presenter = PortDetailPresenter()
-
-    private var progressBar: ProgressBar? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        val view = inflater.inflate(R.layout.fragment_common_log_progress, container, false)
+        binding = FragmentCommonLogProgressBinding.inflate(layoutInflater)
         val command = arguments?.getString(ARG_KEY)
         if (command != null) {
-            progressBar = view.progressBar
-            progressBar?.visibility = View.VISIBLE
+            binding.progressBar.visibility = View.VISIBLE
 
             presenter.getPort(command, object : PortDetailPresenter.OnGetPortListener {
                 override fun onGetPort(result: String) {
-                    view.logText.text = getPortText(result)
-                    progressBar?.visibility = View.GONE
+                    binding.logText.text = getPortText(result)
+                    binding.progressBar.visibility = View.GONE
                 }
             })
         }
-
-        return view
+        return binding.root
     }
 
     override fun getTitle(): Int {

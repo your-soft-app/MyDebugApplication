@@ -1,20 +1,20 @@
 package jp.co.yuji.mydebugapplication.presentation.view.fragment.hard
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import jp.co.yuji.mydebugapplication.R
+import jp.co.yuji.mydebugapplication.databinding.FragmentCommonLogBinding
 import jp.co.yuji.mydebugapplication.presentation.view.fragment.BaseFragment
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import kotlinx.android.synthetic.main.fragment_common_log.view.*
 
 /**
  * Memory Info Fragment
  */
-class MemoryInfoFragment : BaseFragment() {
+class MemoryInfoFragment : BaseFragment(R.layout.fragment_common_log) {
 
     companion object {
         const val command = "cat proc/meminfo"
@@ -22,13 +22,14 @@ class MemoryInfoFragment : BaseFragment() {
             return MemoryInfoFragment()
         }
     }
+    private lateinit var binding: FragmentCommonLogBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        val view = inflater.inflate(R.layout.fragment_common_log, container, false)
-        view.logText.text = execute(MemoryInfoFragment.command)
-        return view
+        binding = FragmentCommonLogBinding.inflate(layoutInflater)
+        binding.logText.text = execute(MemoryInfoFragment.command)
+        return binding.root
     }
 
     override fun getTitle(): Int {

@@ -1,15 +1,15 @@
 package jp.co.yuji.mydebugapplication.presentation.view.fragment.about
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import jp.co.yuji.mydebugapplication.R
+import jp.co.yuji.mydebugapplication.databinding.FragmentAboutBinding
 import jp.co.yuji.mydebugapplication.presentation.view.fragment.BaseFragment
-import kotlinx.android.synthetic.main.fragment_about.view.*
 
-class AboutFragment : BaseFragment() {
+class AboutFragment : BaseFragment(R.layout.fragment_about) {
 
     companion object {
 
@@ -24,13 +24,15 @@ class AboutFragment : BaseFragment() {
         }
     }
 
+    private lateinit var binding: FragmentAboutBinding
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        val view = inflater.inflate(R.layout.fragment_about, container, false)
+        binding = FragmentAboutBinding.inflate(layoutInflater)
         arguments?.getString(ARG_KEY).let {
-            view.webView.loadUrl(it!!)
+            binding.webView.loadUrl(it!!)
         }
-        return view
+        return binding.root
     }
 
     override fun getTitle(): Int {

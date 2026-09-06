@@ -6,23 +6,24 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import jp.co.yuji.mydebugapplication.R
+import jp.co.yuji.mydebugapplication.databinding.FragmentCommonBinding
 import jp.co.yuji.mydebugapplication.domain.model.CommonDto
 import jp.co.yuji.mydebugapplication.presentation.view.adapter.common.CommonDetailRecyclerViewAdapter
 import jp.co.yuji.mydebugapplication.presentation.view.fragment.BaseFragment
 import jp.co.yuji.mydebugapplication.presentation.view.receiver.MyBroadcastReceiver
-import kotlinx.android.synthetic.main.fragment_common.view.*
-import java.util.*
 
-class BroadcastInfoFragment : BaseFragment() {
+class BroadcastInfoFragment : BaseFragment(R.layout.fragment_common) {
 
     companion object {
         fun newInstance() : Fragment {
             return BroadcastInfoFragment()
         }
     }
+    private lateinit var binding: FragmentCommonBinding
 
     private lateinit var adapter: CommonDetailRecyclerViewAdapter
 
@@ -39,16 +40,16 @@ class BroadcastInfoFragment : BaseFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        val view = inflater.inflate(R.layout.fragment_common, container, false)
-        view.recyclerView.layoutManager = LinearLayoutManager(activity)
+        binding = FragmentCommonBinding.inflate(layoutInflater)
+        binding.recyclerView.layoutManager = LinearLayoutManager(activity)
 
         if (activity != null) {
             val list = ArrayList<CommonDto>()
             adapter = CommonDetailRecyclerViewAdapter(requireActivity(), list)
-            view.recyclerView.adapter = adapter
+            binding.recyclerView.adapter = adapter
         }
 
-        return view
+        return binding.root
     }
 
     override fun onResume() {
@@ -106,7 +107,12 @@ class BroadcastInfoFragment : BaseFragment() {
         filter.addAction(Intent.ACTION_UMS_DISCONNECTED)
         filter.addAction(Intent.ACTION_USER_PRESENT)
         filter.addAction(Intent.ACTION_WALLPAPER_CHANGED)
-        activity?.registerReceiver(receiver, filter)
+        ContextCompat.registerReceiver(
+            requireActivity(),
+            receiver,
+            filter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
     }
 
     override fun onPause() {

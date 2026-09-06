@@ -7,28 +7,29 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import jp.co.yuji.mydebugapplication.R
+import jp.co.yuji.mydebugapplication.databinding.FragmentPinningBinding
 import jp.co.yuji.mydebugapplication.presentation.view.activity.PinningActivity
 import jp.co.yuji.mydebugapplication.presentation.view.fragment.BaseFragment
 import jp.co.yuji.mydebugapplication.presentation.view.receiver.MyDeviceAdminReceiver
-import kotlinx.android.synthetic.main.fragment_pinning.view.*
 
 /**
  * Pinning Fragment.
  */
-class PinningFragment : BaseFragment() {
+class PinningFragment : BaseFragment(R.layout.fragment_pinning) {
 
     companion object {
         fun newInstance() : Fragment {
             return PinningFragment()
         }
     }
+    private lateinit var binding: FragmentPinningBinding
 
     private var devicePolicyManager : DevicePolicyManager? = null
 
@@ -44,7 +45,7 @@ class PinningFragment : BaseFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        val view = inflater.inflate(R.layout.fragment_pinning, container, false)
+        binding = FragmentPinningBinding.inflate(layoutInflater)
 
         devicePolicyManager = activity?.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager?
         deviceAdmin = ComponentName(requireActivity(), MyDeviceAdminReceiver::class.java)
@@ -52,9 +53,9 @@ class PinningFragment : BaseFragment() {
         activityManager = activity?.getSystemService(
                 Context.ACTIVITY_SERVICE) as ActivityManager
 
-        view.startPinningButton?.setOnClickListener { startPinning() }
-        view.stopPinningButton?.setOnClickListener { stopPinning() }
-        view.startPinningActivityButton?.setOnClickListener { startPinningActivity() }
+        binding.startPinningButton.setOnClickListener { startPinning() }
+        binding.stopPinningButton.setOnClickListener { stopPinning() }
+        binding.startPinningActivityButton.setOnClickListener { startPinningActivity() }
 
 //        setDeviceOwnerView(view)
 //        setDeviceOwnerStatus(view.isDeviceOwnerTextView)
@@ -68,40 +69,26 @@ class PinningFragment : BaseFragment() {
 //            disableButton()
 //        }
 
-        return view
+        return binding.root
     }
 
     override fun getTitle(): Int {
         return R.string.screen_name_pinning
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private fun startPinning() {
         executeForApiLevel21orHigher {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-                if (activityManager != null && !activityManager!!.isInLockTaskMode) {
-                    activity?.startLockTask()
-                }
-            } else {
-                println(activityManager?.lockTaskModeState)
-                if (activityManager?.lockTaskModeState == ActivityManager.LOCK_TASK_MODE_NONE) {
-                    activity?.startLockTask()
-                }
+            println(activityManager?.lockTaskModeState)
+            if (activityManager?.lockTaskModeState == ActivityManager.LOCK_TASK_MODE_NONE) {
+                activity?.startLockTask()
             }
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private fun stopPinning() {
         executeForApiLevel21orHigher {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-                if (activityManager != null && activityManager!!.isInLockTaskMode) {
-                    activity?.stopLockTask()
-                }
-            } else {
-                if (activityManager?.lockTaskModeState != ActivityManager.LOCK_TASK_MODE_NONE) {
-                    activity?.stopLockTask()
-                }
+            if (activityManager?.lockTaskModeState != ActivityManager.LOCK_TASK_MODE_NONE) {
+                activity?.stopLockTask()
             }
         }
     }

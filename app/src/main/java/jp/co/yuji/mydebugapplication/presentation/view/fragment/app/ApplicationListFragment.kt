@@ -1,29 +1,31 @@
 package jp.co.yuji.mydebugapplication.presentation.view.fragment.app
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import androidx.appcompat.widget.SearchView
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import jp.co.yuji.mydebugapplication.BuildConfig
 import jp.co.yuji.mydebugapplication.R
+import jp.co.yuji.mydebugapplication.databinding.FragmentCommonProgressBinding
 import jp.co.yuji.mydebugapplication.domain.model.ApplicationListDto
 import jp.co.yuji.mydebugapplication.presentation.presenter.app.ApplicationListPresenter
 import jp.co.yuji.mydebugapplication.presentation.view.adapter.ApplicationListRecyclerViewAdapter
 import jp.co.yuji.mydebugapplication.presentation.view.fragment.BaseFragment
-import kotlinx.android.synthetic.main.fragment_common_progress.view.*
-import java.util.*
 
 
 /**
  * Application List Fragment.
  */
-class ApplicationListFragment : BaseFragment() {
+class ApplicationListFragment : BaseFragment(R.layout.fragment_common_progress) {
 
     companion object {
         const val ARG_KEY = "arg_key"
@@ -37,11 +39,9 @@ class ApplicationListFragment : BaseFragment() {
         }
     }
 
+    private lateinit var binding: FragmentCommonProgressBinding
     private val presenter = ApplicationListPresenter()
-
     private var adapter: ApplicationListRecyclerViewAdapter? = null
-
-    private var progressBar: ProgressBar? = null
 
     private val listener = object: ApplicationListRecyclerViewAdapter.OnItemClickListener {
         override fun onItemClick(packageName: String) {
@@ -62,28 +62,27 @@ class ApplicationListFragment : BaseFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                                savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        val view = inflater.inflate(R.layout.fragment_common_progress, container, false)
+        binding = FragmentCommonProgressBinding.inflate(layoutInflater)
+        binding.progressBar.visibility = View.VISIBLE
 
-        progressBar = view.progressBar
-        progressBar?.visibility = View.VISIBLE
-
-        view.recyclerView.layoutManager = LinearLayoutManager(activity)
+        binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         val actionTypePosition = arguments?.getInt(ARG_KEY)
         val list = ArrayList<ApplicationListDto>()
         adapter = ApplicationListRecyclerViewAdapter(list)
-        view.recyclerView.adapter = adapter
+        binding.recyclerView.adapter = adapter
         adapter?.setOnItemClickListener(listener)
 
         val itemDecoration = DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
-        view.recyclerView.addItemDecoration(itemDecoration)
+        binding.recyclerView.addItemDecoration(itemDecoration)
 
         if (actionTypePosition != null) {
-            addApplicationList(actionTypePosition, view.recyclerView, view.emptyView)
+            addApplicationList(actionTypePosition, binding.recyclerView, binding.emptyView)
         }
 
-        return view
+        return binding.root
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         // Inflate the menu to use in the action bar
         inflater.inflate(R.menu.search, menu)
@@ -106,7 +105,7 @@ class ApplicationListFragment : BaseFragment() {
             presenter.getApplicationList(requireActivity(), actionType, object: ApplicationListPresenter.OnGetApplicationListListener {
                 override fun onGetApplicationList(appList: List<ApplicationListDto>) {
                     adapter?.updateList(appList)
-                    progressBar?.visibility = View.GONE
+                    binding.progressBar.visibility = View.GONE
                     if (appList.isNotEmpty()) {
                         recyclerView.visibility = View.VISIBLE
                         emptyView.visibility = View.GONE
